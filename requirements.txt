@@ -1,5 +1,5 @@
 fastapi
 nltk
 PyYAML
-tensorflow_cpu==2.0.0
+tensorflow==2.0.0
 uvicorn
