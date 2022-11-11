@@ -84,7 +84,7 @@ def fake_news_det(news):
     
     x = tokenizer.texts_to_sequences(x)
     print("This is the output",x)
-    x = pad_sequences(x,maxlen=700)
+    # x = pad_sequences(x,maxlen=700)
     predict = loaded_model.predict(x)[0].astype(float) * 100
     return predict    
 
