@@ -12,15 +12,10 @@ from yaml import load
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import uvicorn
-from fastapi import FastAPI
-from typing import Union
-from sklearn.model_selection import train_test_split
 from fastapi import FastAPI, Query
-import numpy as np
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
 import nltk
-import pandas as pd
 # 2. Create the app object
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -35,8 +30,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app = FastAPI()
 
 loaded_model = pickle.load(open('finalmodel.pkl', 'rb'))
 tokenizer = pickle.load(open('tokenizer.pkl', 'rb'))
@@ -80,8 +73,6 @@ tokenizer = pickle.load(open('tokenizer.pkl', 'rb'))
 def fake_news_det(news):
 
     x = [news]
-
-    
     x = tokenizer.texts_to_sequences(x)
     print("This is the output",x)
     x = pad_sequences(x,maxlen=700)
