@@ -17,9 +17,7 @@ from typing import Union
 from sklearn.model_selection import train_test_split
 from fastapi import FastAPI, Query
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from keras.preprocessing.sequence import pad_sequences
-from keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
 import nltk
 import pandas as pd
@@ -39,54 +37,54 @@ app.add_middleware(
 )
 
 app = FastAPI()
-tfvect = TfidfVectorizer(stop_words='english', max_df=0.7)
+
 loaded_model = pickle.load(open('finalmodel.pkl', 'rb'))
-fake_df = pd.read_csv('Fake.csv')
-real_df = pd.read_csv('True.csv')
-fake_df.drop(['date', 'subject'], axis=1, inplace=True)
-real_df.drop(['date', 'subject'], axis=1, inplace=True)
+tokenizer = pickle.load(open('tokenizer.pkl', 'rb'))
+# fake_df = pd.read_csv('Fake.csv')
+# real_df = pd.read_csv('True.csv')
+# fake_df.drop(['date', 'subject'], axis=1, inplace=True)
+# real_df.drop(['date', 'subject'], axis=1, inplace=True)
 
-fake_df['class'] = 0
-real_df['class'] = 1
-
-
-news_df = pd.concat([fake_df, real_df], ignore_index=True, sort=False)
-news_df['text'] = news_df['title'] + news_df['text']
-news_df.drop('title', axis=1, inplace=True)
+# fake_df['class'] = 0
+# real_df['class'] = 1
 
 
-features = news_df['text']
-targets = news_df['class']
+# news_df = pd.concat([fake_df, real_df], ignore_index=True, sort=False)
+# news_df['text'] = news_df['title'] + news_df['text']
+# news_df.drop('title', axis=1, inplace=True)
 
 
-X_train, X_test, y_train, y_test = train_test_split(features, targets, test_size=0.20, random_state=18)
-y = news_df["class"].values
-maxlen=700
-#Converting X to format acceptable by gensim, removing annd punctuation stopwords in the process
-X = []
-stop_words = set(nltk.corpus.stopwords.words("english"))
-tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')
-for par in news_df["text"].values:
-    tmp = []
-    sentences = nltk.sent_tokenize(par)
-    for sent in sentences:
-        sent = sent.lower()
-        tokens = tokenizer.tokenize(sent)
-        filtered_words = [w.strip() for w in tokens if w not in stop_words and len(w) > 1]
-        tmp.extend(filtered_words)
-    X.append(tmp)
+# features = news_df['text']
+# targets = news_df['class']
 
-del news_df
+
+# X_train, X_test, y_train, y_test = train_test_split(features, targets, test_size=0.20, random_state=18)
+# y = news_df["class"].values
+# maxlen=700
+# #Converting X to format acceptable by gensim, removing annd punctuation stopwords in the process
+# X = []
+# stop_words = set(nltk.corpus.stopwords.words("english"))
+# tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')
+# for par in news_df["text"].values:
+#     tmp = []
+#     sentences = nltk.sent_tokenize(par)
+#     for sent in sentences:
+#         sent = sent.lower()
+#         tokens = tokenizer.tokenize(sent)
+#         filtered_words = [w.strip() for w in tokens if w not in stop_words and len(w) > 1]
+#         tmp.extend(filtered_words)
+#     X.append(tmp)
+
+# del news_df
 
 def fake_news_det(news):
-    tokenizer = Tokenizer()
-    tokenizer.fit_on_texts(X)
+
     x = [news]
-    # vect=loaded_model.transform(x).toarray()x
+
     
     x = tokenizer.texts_to_sequences(x)
     print("This is the output",x)
-    x = pad_sequences(x,maxlen=maxlen)
+    x = pad_sequences(x,maxlen=700)
     predict = loaded_model.predict(x)[0].astype(float) * 100
     return predict    
 
